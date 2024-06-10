@@ -1,7 +1,10 @@
 package main
 
 import (
+	"database/sql"
 	"github.com/gorilla/mux"
+	"github.com/karankap00r/employee_portal/config"
+
 	//"github.com/karankap00r/employee_portal/server"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"log"
@@ -29,9 +32,31 @@ import (
 // @BasePath /
 func main() {
 
-	// Mock data
-	api.Employees = append(api.Employees, api.Employee{ID: "1", Name: "John Doe", Age: 30, Dept: "Engineering"})
-	api.Employees = append(api.Employees, api.Employee{ID: "2", Name: "Jane Doe", Age: 25, Dept: "Marketing"})
+	// Initialize SQLite database
+	db, err := sql.Open("sqlite3", "./employees.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}(db)
+
+	createTable := `CREATE TABLE IF NOT EXISTS employees (
+        id TEXT PRIMARY KEY,
+        name TEXT,
+        age INTEGER,
+        dept TEXT
+    );`
+
+	_, err = db.Exec(createTable)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	config.InitializeDB(db)
 
 	//cfg := config.LoadConfig()
 
@@ -46,10 +71,6 @@ func main() {
 		r.HandleFunc("/employees/{id}", api.UpdateEmployee).Methods(http.MethodPut)
 
 		r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
-
-		// Serve the docs folder
-		fs := http.FileServer(http.Dir("./docs"))
-		r.PathPrefix("/docs/").Handler(http.StripPrefix("/docs/", fs))
 
 		log.Println("Server started at port 8000")
 

@@ -1,8 +1,6 @@
 package config
 
 import (
-	"database/sql"
-	"log"
 	"os"
 	"sync"
 )
@@ -11,32 +9,26 @@ type Config struct {
 	ServerAddress string
 }
 
-var config Config
-var once sync.Once
-
-var db *sql.DB
+var (
+	_    Config
+	once sync.Once
+)
 
 func init() {
 	LoadConfig()
-	initDatabase()
-}
-
-// Initialize SQLite database
-func initDatabase() {
-	var err error
-	db, err = sql.Open("sqlite3", "./employees.db")
-	if err != nil {
-		log.Fatal(err)
-	}
 }
 
 func LoadConfig() {
 	once.Do(func() {
-		config = Config{
+		_ = Config{
 			ServerAddress: getEnv("SERVER_ADDRESS", ":8080"),
 		}
 	})
 }
+
+/****************************************************
+	Utility Methods
+*****************************************************/
 
 func getEnv(key, defaultValue string) string {
 	value, exists := os.LookupEnv(key)

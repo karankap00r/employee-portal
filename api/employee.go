@@ -1,9 +1,12 @@
 package api
 
 import (
+	"database/sql"
 	"encoding/json"
-	"github.com/gorilla/mux"
 	"net/http"
+
+	"github.com/gorilla/mux"
+	"github.com/karankap00r/employee_portal/config"
 )
 
 // Employee represents an employee
@@ -13,9 +16,6 @@ type Employee struct {
 	Age  int    `json:"age"`
 	Dept string `json:"dept"`
 }
-
-// Employees in-memory list of employees
-var Employees []Employee
 
 // GetEmployees retrieves all employees
 // @Summary Get all employees
@@ -27,7 +27,24 @@ var Employees []Employee
 // @Router /employees [get]
 func GetEmployees(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(Employees)
+	rows, err := config.GetDB().Query("SELECT id, name, age, dept FROM employees")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var employees []Employee
+	for rows.Next() {
+		var employee Employee
+		err := rows.Scan(&employee.ID, &employee.Name, &employee.Age, &employee.Dept)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		employees = append(employees, employee)
+	}
+	json.NewEncoder(w).Encode(employees)
 }
 
 // GetEmployee retrieves a single employee by ID
@@ -43,13 +60,17 @@ func GetEmployees(w http.ResponseWriter, r *http.Request) {
 func GetEmployee(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
-	for _, item := range Employees {
-		if item.ID == params["id"] {
-			json.NewEncoder(w).Encode(item)
-			return
+	var employee Employee
+	err := config.GetDB().QueryRow("SELECT id, name, age, dept FROM employees WHERE id = ?", params["id"]).Scan(&employee.ID, &employee.Name, &employee.Age, &employee.Dept)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			http.Error(w, "Employee not found", http.StatusNotFound)
+		} else {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
+		return
 	}
-	http.Error(w, "Employee not found", http.StatusNotFound)
+	json.NewEncoder(w).Encode(employee)
 }
 
 // CreateEmployee creates a new employee
@@ -65,7 +86,11 @@ func CreateEmployee(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var employee Employee
 	_ = json.NewDecoder(r.Body).Decode(&employee)
-	Employees = append(Employees, employee)
+	_, err := config.GetDB().Exec("INSERT INTO employees (id, name, age, dept) VALUES (?, ?, ?, ?)", employee.ID, employee.Name, employee.Age, employee.Dept)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	json.NewEncoder(w).Encode(employee)
 }
 
@@ -83,16 +108,17 @@ func CreateEmployee(w http.ResponseWriter, r *http.Request) {
 func UpdateEmployee(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
-	for index, item := range Employees {
-		if item.ID == params["id"] {
-			Employees = append(Employees[:index], Employees[index+1:]...)
-			var employee Employee
-			_ = json.NewDecoder(r.Body).Decode(&employee)
-			employee.ID = params["id"]
-			Employees = append(Employees, employee)
-			json.NewEncoder(w).Encode(employee)
-			return
+	var employee Employee
+	_ = json.NewDecoder(r.Body).Decode(&employee)
+	_, err := config.GetDB().Exec("UPDATE employees SET name = ?, age = ?, dept = ? WHERE id = ?", employee.Name, employee.Age, employee.Dept, params["id"])
+	if err != nil {
+		if err == sql.ErrNoRows {
+			http.Error(w, "Employee not found", http.StatusNotFound)
+		} else {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
+		return
 	}
-	http.Error(w, "Employee not found", http.StatusNotFound)
+	employee.ID = params["id"]
+	json.NewEncoder(w).Encode(employee)
 }
