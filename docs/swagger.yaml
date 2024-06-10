@@ -1,0 +1,29 @@
+definitions:
+  model.Employee:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      position:
+        type: string
+      salary:
+        type: integer
+    type: object
+info:
+  contact: {}
+paths:
+  /employees:
+    get:
+      description: Get details of all employees
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Employee'
+            type: array
+      summary: Get all employees
+swagger: "2.0"
