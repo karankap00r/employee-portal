@@ -1,23 +1,25 @@
 package server
 
 import (
-	"log"
-	"net/http"
-
 	"github.com/gorilla/mux"
 	"github.com/karankap00r/employee_portal/api"
 	"github.com/karankap00r/employee_portal/config"
+	httpSwagger "github.com/swaggo/http-swagger"
+	"log"
+	"net/http"
 )
 
-func Start(config config.Config) {
-	// Initialize the router
+func Start(_ config.Config) {
 	r := mux.NewRouter()
-	// Route handlers & endpoints
-	r.HandleFunc("/employees", api.GetEmployees).Methods("GET")
-	r.HandleFunc("/employees/{id}", api.GetEmployee).Methods("GET")
-	r.HandleFunc("/employees", api.CreateEmployee).Methods("POST")
-	r.HandleFunc("/employees/{id}", api.UpdateEmployee).Methods("PUT")
-	r.HandleFunc("/employees/{id}", api.DeleteEmployee).Methods("DELETE")
+
+	r.HandleFunc("/employees", api.GetEmployees).Methods(http.MethodGet)
+	r.HandleFunc("/employees/{id}", api.GetEmployee).Methods(http.MethodGet)
+	r.HandleFunc("/employees", api.CreateEmployee).Methods(http.MethodPost)
+	r.HandleFunc("/employees/{id}", api.UpdateEmployee).Methods(http.MethodPut)
+
+	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
+
+	log.Println("Server started at port 8000")
 
 	// Start server
 	log.Fatal(http.ListenAndServe(":8000", r))

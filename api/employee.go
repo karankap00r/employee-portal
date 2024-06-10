@@ -14,16 +14,32 @@ type Employee struct {
 	Dept string `json:"dept"`
 }
 
-// in-memory list of Employees
+// Employees in-memory list of employees
 var Employees []Employee
 
-// Get all Employees
+// GetEmployees retrieves all employees
+// @Summary Get all employees
+// @Description Get all employees
+// @Tags employees
+// @Accept  json
+// @Produce  json
+// @Success 200 {array} Employee
+// @Router /employees [get]
 func GetEmployees(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(Employees)
 }
 
-// Get single employee
+// GetEmployee retrieves a single employee by ID
+// @Summary Get an employee by ID
+// @Description Get an employee by ID
+// @Tags employees
+// @Accept  json
+// @Produce  json
+// @Param id path string true "Employee ID"
+// @Success 200 {object} Employee
+// @Failure 404 {string} string "Employee not found"
+// @Router /employees/{id} [get]
 func GetEmployee(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
@@ -36,7 +52,15 @@ func GetEmployee(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "Employee not found", http.StatusNotFound)
 }
 
-// Create a new employee
+// CreateEmployee creates a new employee
+// @Summary Create a new employee
+// @Description Create a new employee
+// @Tags employees
+// @Accept  json
+// @Produce  json
+// @Param employee body Employee true "Employee"
+// @Success 201 {object} Employee
+// @Router /employees [post]
 func CreateEmployee(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var employee Employee
@@ -45,7 +69,17 @@ func CreateEmployee(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(employee)
 }
 
-// Update an employee
+// UpdateEmployee updates an existing employee by ID
+// @Summary Update an employee
+// @Description Update an employee
+// @Tags employees
+// @Accept  json
+// @Produce  json
+// @Param id path string true "Employee ID"
+// @Param employee body Employee true "Employee"
+// @Success 200 {object} Employee
+// @Failure 404 {string} string "Employee not found"
+// @Router /employees/{id} [put]
 func UpdateEmployee(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
@@ -61,17 +95,4 @@ func UpdateEmployee(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	http.Error(w, "Employee not found", http.StatusNotFound)
-}
-
-// Delete an employee
-func DeleteEmployee(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	params := mux.Vars(r)
-	for index, item := range Employees {
-		if item.ID == params["id"] {
-			Employees = append(Employees[:index], Employees[index+1:]...)
-			break
-		}
-	}
-	json.NewEncoder(w).Encode(Employees)
 }
