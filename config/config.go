@@ -10,6 +10,14 @@ type Config struct {
 
 func LoadConfig() Config {
 	return Config{
-		ServerAddress: os.Getenv("SERVER_ADDRESS"),
+		ServerAddress: getEnv("SERVER_ADDRESS", ":8080"),
 	}
+}
+
+func getEnv(key, defaultValue string) string {
+	value, exists := os.LookupEnv(key)
+	if !exists {
+		return defaultValue
+	}
+	return value
 }
