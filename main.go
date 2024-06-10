@@ -12,6 +12,7 @@ import (
 
 	_ "github.com/gorilla/mux"
 	"github.com/karankap00r/employee_portal/api"
+	_ "github.com/mattn/go-sqlite3"
 	_ "github.com/swaggo/http-swagger"
 )
 
