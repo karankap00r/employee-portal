@@ -1,4 +1,3 @@
--- V2__Insert_sample_data.sql
 INSERT INTO employees (id, name, age, dept) VALUES
                                                 ('1', 'John Doe', 30, 'Engineering'),
                                                 ('2', 'Jane Doe', 25, 'Marketing'),

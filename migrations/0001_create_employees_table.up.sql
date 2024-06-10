@@ -1,4 +1,4 @@
--- V1__Create_employees_table.sql
+-- 0001_create_employees_table.up.sql
 CREATE TABLE IF NOT EXISTS employees (
                                          id TEXT PRIMARY KEY,
                                          name TEXT,

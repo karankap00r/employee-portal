@@ -2,10 +2,14 @@ package database
 
 import (
 	"database/sql"
-	_ "github.com/mattn/go-sqlite3"
 	"log"
-	"os/exec"
+	"os"
 	"sync"
+
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/sqlite3"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 // databaseConnection is the database connection
@@ -25,18 +29,25 @@ func InitDB() {
 		}
 	})
 
-	migrateDB(err)
+	migrateDB()
 }
 
 // migrateDB runs Flyway migrations
-func migrateDB(err error) {
-	// Run Flyway migrations
-	cmd := exec.Command("flyway", "migrate")
-	cmd.Stdout = log.Writer()
-	cmd.Stderr = log.Writer()
-	err = cmd.Run()
+func migrateDB() {
+	driver, err := sqlite3.WithInstance(databaseConnection, &sqlite3.Config{})
 	if err != nil {
-		log.Fatalf("Failed to run Flyway migrations: %v", err)
+		log.Fatalf("Failed to create migrate driver: %v", err)
+	}
+
+	m, err := migrate.NewWithDatabaseInstance(
+		"file://github.com/karankap00r/employee_portal/migrations",
+		"sqlite3", driver)
+	if err != nil {
+		log.Fatalf("Failed to create migrate instance: %v", err)
+	}
+
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		log.Fatalf("Failed to run migrations: %v", err)
 	}
 }
 
@@ -44,6 +55,11 @@ func migrateDB(err error) {
 func CloseDB() {
 	if err := databaseConnection.Close(); err != nil {
 		log.Fatalf("Failed to close database: %v", err)
+	}
+
+	// Delete the database file
+	if err := os.Remove("./employees.db"); err != nil {
+		log.Fatalf("Failed to delete database file: %v", err)
 	}
 }
 
