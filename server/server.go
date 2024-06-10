@@ -3,13 +3,24 @@ package server
 import (
 	"github.com/gorilla/mux"
 	"github.com/karankap00r/employee_portal/api"
-	"github.com/karankap00r/employee_portal/config"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"log"
 	"net/http"
 )
 
-func Start(_ config.Config) {
+// @title Employee API
+// @version 1.0
+// @description This is a sample server for managing employees.
+// @termsOfService http://swagger.io/terms/
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+// @host localhost:8000
+// @BasePath /
+
+func Start() {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/employees", api.GetEmployees).Methods(http.MethodGet)

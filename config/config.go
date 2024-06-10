@@ -10,15 +10,19 @@ type Config struct {
 }
 
 var (
-	_    Config
-	once sync.Once
+	config Config
+	once   sync.Once
 )
 
 func init() {
-	LoadConfig()
+	loadConfig()
 }
 
-func LoadConfig() {
+func GetConfig() Config {
+	return config
+}
+
+func loadConfig() {
 	once.Do(func() {
 		_ = Config{
 			ServerAddress: getEnv("SERVER_ADDRESS", ":8080"),

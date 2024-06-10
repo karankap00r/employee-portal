@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/karankap00r/employee_portal/config"
+	"github.com/karankap00r/employee_portal/database"
 )
 
 // Employee represents an employee
@@ -27,7 +27,7 @@ type Employee struct {
 // @Router /employees [get]
 func GetEmployees(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	rows, err := config.GetDB().Query("SELECT id, name, age, dept FROM employees")
+	rows, err := database.GetDB().Query("SELECT id, name, age, dept FROM employees")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -61,7 +61,7 @@ func GetEmployee(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 	var employee Employee
-	err := config.GetDB().QueryRow("SELECT id, name, age, dept FROM employees WHERE id = ?", params["id"]).Scan(&employee.ID, &employee.Name, &employee.Age, &employee.Dept)
+	err := database.GetDB().QueryRow("SELECT id, name, age, dept FROM employees WHERE id = ?", params["id"]).Scan(&employee.ID, &employee.Name, &employee.Age, &employee.Dept)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			http.Error(w, "Employee not found", http.StatusNotFound)
@@ -86,7 +86,7 @@ func CreateEmployee(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var employee Employee
 	_ = json.NewDecoder(r.Body).Decode(&employee)
-	_, err := config.GetDB().Exec("INSERT INTO employees (id, name, age, dept) VALUES (?, ?, ?, ?)", employee.ID, employee.Name, employee.Age, employee.Dept)
+	_, err := database.GetDB().Exec("INSERT INTO employees (id, name, age, dept) VALUES (?, ?, ?, ?)", employee.ID, employee.Name, employee.Age, employee.Dept)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -110,7 +110,7 @@ func UpdateEmployee(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	var employee Employee
 	_ = json.NewDecoder(r.Body).Decode(&employee)
-	_, err := config.GetDB().Exec("UPDATE employees SET name = ?, age = ?, dept = ? WHERE id = ?", employee.Name, employee.Age, employee.Dept, params["id"])
+	_, err := database.GetDB().Exec("UPDATE employees SET name = ?, age = ?, dept = ? WHERE id = ?", employee.Name, employee.Age, employee.Dept, params["id"])
 	if err != nil {
 		if err == sql.ErrNoRows {
 			http.Error(w, "Employee not found", http.StatusNotFound)
