@@ -86,3 +86,17 @@ Requirements:
 * Service should return the current 7 days public holidays for the employees' residence location
 * Create an email alert with the current public holidays in the next 7 days upcoming
 * Store from a 3rd party API or you parse it online to get the source of truth of the public holidays
+
+## Postman Collection:
+Please refer `resources/Employee Management System.postman_collection.json` for the API documentation.
+
+## Possible Improvements:
+1. Fetching configuration from a file
+2. Addition of monitoring and alerting
+3. Load Testing the endpoints
+4. Adding more features like leave history, etc.
+5. Making storage persistent
+6. Adding more validations
+7. Adding more test cases
+8. Writing cron for sending email alerts for next 7 days public holidays
+9. Make the "7" day configuration driven.
