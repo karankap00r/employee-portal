@@ -10,4 +10,3 @@ CREATE TABLE IF NOT EXISTS leave_balances
     FOREIGN KEY (org_id) REFERENCES orgs (id),
     UNIQUE (org_id, employee_id, leave_type)
 );
-    

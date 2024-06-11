@@ -56,7 +56,7 @@ func Start() {
 	r.HandleFunc("/employee/{employeeID}", employeeHandler.GetEmployee).Methods(http.MethodGet)
 	r.HandleFunc("/employees", employeeHandler.GetAllEmployees).Methods(http.MethodGet)
 
-	r.HandleFunc("/leave-balance", leaveHandler.GetLeaveBalance).Methods(http.MethodGet)
+	r.HandleFunc("/leave-balance/{employeeID}", leaveHandler.GetLeaveBalance).Methods(http.MethodGet)
 	r.HandleFunc("/leave-request", leaveHandler.RaiseLeaveRequest).Methods(http.MethodPost)
 	r.HandleFunc("/leave/{action}", leaveHandler.UpdateLeaveRequest).Methods(http.MethodPut)
 	r.HandleFunc("/leaves-requests", leaveHandler.GetLeavesInRange).Methods(http.MethodGet)

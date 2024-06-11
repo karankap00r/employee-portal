@@ -2,7 +2,6 @@ package config
 
 import (
 	"os"
-	"sync"
 )
 
 type Config struct {
@@ -11,7 +10,6 @@ type Config struct {
 
 var (
 	config Config
-	once   sync.Once
 )
 
 func init() {
@@ -23,11 +21,7 @@ func GetConfig() Config {
 }
 
 func loadConfig() {
-	once.Do(func() {
-		_ = Config{
-			ServerAddress: getEnv("SERVER_ADDRESS", ":8080"),
-		}
-	})
+	//todo: load config from config file
 }
 
 /****************************************************

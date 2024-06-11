@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"github.com/gorilla/mux"
 	"net/http"
 	"time"
 
@@ -22,10 +23,10 @@ func NewLeaveHandler(service service.LeaveService) *LeaveHandler {
 
 func (h *LeaveHandler) GetLeaveBalance(w http.ResponseWriter, r *http.Request) {
 	var request dto.GetLeaveBalanceRequest
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		util.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-		return
-	}
+
+	params := mux.Vars(r)
+	request.EmployeeID = params["employeeID"]
+
 	balance, err := h.service.GetLeaveBalance(r.Context(), request.EmployeeID)
 	if err != nil {
 		util.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())

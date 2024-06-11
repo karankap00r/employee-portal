@@ -12,4 +12,4 @@ CREATE TABLE IF NOT EXISTS public_holidays
     updated_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (country, start_date, end_date)
 );
-    
+
