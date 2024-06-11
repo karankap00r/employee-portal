@@ -59,7 +59,7 @@ func CloseDB() {
 
 	// Delete the database file
 	if err := os.Remove("./employees.db"); err != nil {
-		log.Fatalf("Failed to delete database file: %v", err)
+		log.Fatalf("Failed to delete the database file: %v", err)
 	}
 }
 
