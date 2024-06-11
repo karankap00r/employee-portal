@@ -4,7 +4,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/karankap00r/employee_portal/api"
 	"github.com/karankap00r/employee_portal/database"
-	service "github.com/karankap00r/employee_portal/service/employee"
+	"github.com/karankap00r/employee_portal/middleware"
+	"github.com/karankap00r/employee_portal/service"
 	"github.com/karankap00r/employee_portal/storage/repository"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"log"
@@ -24,17 +25,42 @@ import (
 // @BasePath /
 
 func Start() {
+	dbConnection := database.GetDB()
+
+	// Initialize repositories
+	orgRepo := repository.NewOrgRepository(dbConnection)
+	leaveRepo := repository.NewLeaveRepository(dbConnection)
+	employeeRepo := repository.NewEmployeeRepository(dbConnection)
+	remoteWorkRepo := repository.NewRemoteWorkRepository(dbConnection)
+
+	// Initialize services
+	leaveService := service.NewLeaveService(leaveRepo)
+	employeeService := service.NewEmployeeService(employeeRepo)
+	remoteWorkService := service.NewRemoteWorkService(remoteWorkRepo)
+
+	// Initialize handlers
+	leaveHandler := api.NewLeaveHandler(leaveService)
+	employeeHandler := api.NewEmployeeHandler(employeeService)
+	remoteWorkHandler := api.NewRemoteWorkHandler(remoteWorkService)
+
 	r := mux.NewRouter()
 
-	// Initialize repository, service, and handlers
-	employeeRepo := repository.NewEmployeeRepository(database.GetDB())
-	employeeService := service.NewEmployeeService(employeeRepo)
-	employeeHandler := api.NewEmployeeHandler(employeeService)
+	r.Use(middleware.OrgResolver(orgRepo))
 
 	r.HandleFunc("/employee", employeeHandler.CreateEmployee).Methods(http.MethodPost)
 	r.HandleFunc("/employee/{employeeID}", employeeHandler.UpdateEmployee).Methods(http.MethodPut)
 	r.HandleFunc("/employee/{employeeID}", employeeHandler.GetEmployee).Methods(http.MethodGet)
 	r.HandleFunc("/employees", employeeHandler.GetAllEmployees).Methods(http.MethodGet)
+
+	r.HandleFunc("/leave-balance", leaveHandler.GetLeaveBalance).Methods(http.MethodGet)
+	r.HandleFunc("/leave-request", leaveHandler.RaiseLeaveRequest).Methods(http.MethodPost)
+	r.HandleFunc("/leave/{action}", leaveHandler.UpdateLeaveRequest).Methods(http.MethodPut)
+	r.HandleFunc("/leaves-requests", leaveHandler.GetLeavesInRange).Methods(http.MethodGet)
+
+	r.HandleFunc("/remote-work-balance", remoteWorkHandler.GetRemoteWorkBalance).Methods(http.MethodGet)
+	r.HandleFunc("/remote-work-request", remoteWorkHandler.RaiseRemoteWorkRequest).Methods(http.MethodPost)
+	r.HandleFunc("/remote-work/{action}", remoteWorkHandler.UpdateRemoteWorkRequest).Methods(http.MethodPut)
+	r.HandleFunc("/remote-work-requests", remoteWorkHandler.GetRemoteWorkRequestsInRange).Methods(http.MethodGet)
 
 	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 

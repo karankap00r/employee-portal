@@ -7,6 +7,7 @@ import (
 
 type Employee struct {
 	ID         int       `json:"id"`
+	OrgID      int       `json:"org_id"`
 	EmployeeID string    `json:"employee_id"`
 	Name       string    `json:"name"`
 	Position   string    `json:"position"`

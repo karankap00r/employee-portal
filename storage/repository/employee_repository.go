@@ -9,8 +9,8 @@ import (
 
 //go:generate mockgen -source=employee_repository.go -destination=mocks/mock_employee_repository.go -package=mocks
 type EmployeeRepository interface {
-	GetAll() ([]model.Employee, error)
-	GetByEmployeeID(employeeID string) (*model.Employee, error)
+	GetAll(orgID int) ([]model.Employee, error)
+	GetByEmployeeID(orgID int, employeeID string) (*model.Employee, error)
 	Create(employee *model.Employee) error
 	Update(employeeID string, employee *model.Employee) error
 }
@@ -23,8 +23,8 @@ func NewEmployeeRepository(db *sql.DB) EmployeeRepository {
 	return &employeeRepository{db}
 }
 
-func (r *employeeRepository) GetAll() ([]model.Employee, error) {
-	rows, err := r.db.Query("SELECT id, employee_id, name, position, email, salary, created_at, updated_at FROM employees")
+func (r *employeeRepository) GetAll(orgID int) ([]model.Employee, error) {
+	rows, err := r.db.Query("SELECT id, employee_id, name, position, email, salary, created_at, updated_at FROM employees where org_id = ?", orgID)
 	if err != nil {
 		return nil, err
 	}
@@ -41,9 +41,9 @@ func (r *employeeRepository) GetAll() ([]model.Employee, error) {
 	return employees, nil
 }
 
-func (r *employeeRepository) GetByEmployeeID(employeeID string) (*model.Employee, error) {
+func (r *employeeRepository) GetByEmployeeID(orgID int, employeeID string) (*model.Employee, error) {
 	var employee model.Employee
-	err := r.db.QueryRow("SELECT id, employee_id, name, position, email, salary, created_at, updated_at FROM employees WHERE employee_id = ?", employeeID).
+	err := r.db.QueryRow("SELECT id, employee_id, name, position, email, salary, created_at, updated_at FROM employees WHERE employee_id = ? and org_id = ?", employeeID, orgID).
 		Scan(&employee.ID, &employee.EmployeeID, &employee.Name, &employee.Position, &employee.Email, &employee.Salary, &employee.CreatedAt, &employee.UpdatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -55,14 +55,14 @@ func (r *employeeRepository) GetByEmployeeID(employeeID string) (*model.Employee
 }
 
 func (r *employeeRepository) Create(employee *model.Employee) error {
-	_, err := r.db.Exec("INSERT INTO employees (employee_id, name, position, email, salary, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-		employee.EmployeeID, employee.Name, employee.Position, employee.Email, employee.Salary, employee.CreatedAt, employee.UpdatedAt)
+	_, err := r.db.Exec("INSERT INTO employees (org_id, employee_id, name, position, email, salary, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+		employee.OrgID, employee.EmployeeID, employee.Name, employee.Position, employee.Email, employee.Salary, employee.CreatedAt, employee.UpdatedAt)
 	return err
 }
 
 func (r *employeeRepository) Update(employeeID string, employee *model.Employee) error {
 	employee.UpdatedAt = time.Now()
-	_, err := r.db.Exec("UPDATE employees SET name = ?, position = ?, email = ?, salary = ?, updated_at = ? WHERE employee_id = ?",
-		employee.Name, employee.Position, employee.Email, employee.Salary, employee.UpdatedAt, employeeID)
+	_, err := r.db.Exec("UPDATE employees SET name = ?, position = ?, email = ?, salary = ?, updated_at = ? WHERE employee_id = ? and org_id = ?",
+		employee.Name, employee.Position, employee.Email, employee.Salary, employee.UpdatedAt, employeeID, employee.OrgID)
 	return err
 }

@@ -2,11 +2,12 @@ package api
 
 import (
 	"encoding/json"
+	"net/http"
+
 	"github.com/gorilla/mux"
 	"github.com/karankap00r/employee_portal/dto/request"
-	service "github.com/karankap00r/employee_portal/service/employee"
+	"github.com/karankap00r/employee_portal/service"
 	"github.com/karankap00r/employee_portal/util"
-	"net/http"
 )
 
 type EmployeeHandler interface {
@@ -34,7 +35,7 @@ func (h *employeeHandler) CreateEmployee(w http.ResponseWriter, r *http.Request)
 		util.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	employee, err := h.service.CreateEmployee(request)
+	employee, err := h.service.CreateEmployee(r.Context(), request)
 	if err != nil {
 		util.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
@@ -54,7 +55,7 @@ func (h *employeeHandler) UpdateEmployee(w http.ResponseWriter, r *http.Request)
 		util.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	employee, err := h.service.UpdateEmployeeByEmployeeID(employeeID, request)
+	employee, err := h.service.UpdateEmployeeByEmployeeID(r.Context(), employeeID, request)
 	if err != nil {
 		util.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
@@ -64,7 +65,7 @@ func (h *employeeHandler) UpdateEmployee(w http.ResponseWriter, r *http.Request)
 
 func (h *employeeHandler) GetEmployee(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	employee, err := h.service.GetEmployeeByEmployeeID(params["employeeID"])
+	employee, err := h.service.GetEmployeeByEmployeeID(r.Context(), params["employeeID"])
 	if err != nil {
 		util.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
@@ -77,7 +78,7 @@ func (h *employeeHandler) GetEmployee(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *employeeHandler) GetAllEmployees(w http.ResponseWriter, r *http.Request) {
-	employees, err := h.service.GetAllEmployees()
+	employees, err := h.service.GetAllEmployees(r.Context())
 	if err != nil {
 		util.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
