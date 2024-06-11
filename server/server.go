@@ -31,10 +31,10 @@ func Start() {
 	employeeService := service.NewEmployeeService(employeeRepo)
 	employeeHandler := api.NewEmployeeHandler(employeeService)
 
-	r.HandleFunc("/employees", employeeHandler.CreateEmployee).Methods(http.MethodPost)
-	r.HandleFunc("/employees/{id}", employeeHandler.UpdateEmployee).Methods(http.MethodPut)
-	r.HandleFunc("/employees/{id}", employeeHandler.GetEmployee).Methods(http.MethodGet)
-	r.HandleFunc("/employees", employeeHandler.GetEmployees).Methods(http.MethodGet)
+	r.HandleFunc("/employee", employeeHandler.CreateEmployee).Methods(http.MethodPost)
+	r.HandleFunc("/employee/{employeeID}", employeeHandler.UpdateEmployee).Methods(http.MethodPut)
+	r.HandleFunc("/employee/{employeeID}", employeeHandler.GetEmployee).Methods(http.MethodGet)
+	r.HandleFunc("/employees", employeeHandler.GetAllEmployees).Methods(http.MethodGet)
 
 	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 

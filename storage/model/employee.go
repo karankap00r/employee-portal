@@ -1,6 +1,9 @@
 package model
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 type Employee struct {
 	ID         int       `json:"id"`
@@ -11,4 +14,9 @@ type Employee struct {
 	Salary     int       `json:"salary"`
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`
+}
+
+// String Method to return the string representation of the Employee struct
+func (e *Employee) String() string {
+	return "Employee ID: " + e.EmployeeID + ", Name: " + e.Name + ", Position: " + e.Position + ", Email: " + e.Email + ", Salary: " + fmt.Sprint(e.Salary)
 }
