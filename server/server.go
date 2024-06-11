@@ -71,6 +71,8 @@ func Start() {
 	r.HandleFunc("/public-holidays", publicHolidayHandler.GetAllPublicHolidays).Methods(http.MethodGet)
 	r.HandleFunc("/public-holiday", publicHolidayHandler.AddPublicHoliday).Methods(http.MethodPost)
 	r.HandleFunc("/public-holiday/{id}/status", publicHolidayHandler.UpdatePublicHolidayStatus).Methods(http.MethodPut)
+	r.HandleFunc("/public-holidays/next7days", publicHolidayHandler.GetPublicHolidaysForNext7Days).Methods(http.MethodGet)
+	r.HandleFunc("/public-holidays/alert", publicHolidayHandler.SendPublicHolidayAlert).Methods(http.MethodPost)
 
 	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 

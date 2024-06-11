@@ -55,9 +55,52 @@ func (r *employeeRepository) GetByEmployeeID(orgID int, employeeID string) (*mod
 }
 
 func (r *employeeRepository) Create(employee *model.Employee) error {
-	_, err := r.db.Exec("INSERT INTO employees (org_id, employee_id, name, position, email, salary, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-		employee.OrgID, employee.EmployeeID, employee.Name, employee.Position, employee.Email, employee.Salary, employee.CreatedAt, employee.UpdatedAt)
-	return err
+	tx, err := r.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	query := `INSERT INTO employees (org_id, employee_id, name, position, email, salary, created_at, updated_at)
+	          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+	_, err = tx.Exec(query, employee.OrgID, employee.EmployeeID, employee.Name, employee.Position, employee.Email, employee.Salary, time.Now(), time.Now())
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// Add logic to insert default leave balances based on org configurations
+	leaveTypes := []string{"Sick Leave", "Vacation Leave"}
+	leaveBalances := map[string]int{
+		"Sick Leave":     10, // default value, can be replaced with org specific values
+		"Vacation Leave": 15, // default value, can be replaced with org specific values
+	}
+	for _, leaveType := range leaveTypes {
+		_, err := tx.Exec(`INSERT INTO leave_balances (org_id, employee_id, leave_type, annual_balance, created_at, updated_at)
+		                  VALUES (?, ?, ?, ?, ?, ?)`,
+			employee.OrgID, employee.EmployeeID, leaveType, leaveBalances[leaveType], time.Now(), time.Now())
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	// Add logic to insert default remote work balances based on org configurations
+	remoteWorkTypes := []string{"LOCAL", "CROSS_BORDER"}
+	remoteWorkBalances := map[string]int{
+		"LOCAL":        20, // default value, can be replaced with org specific values
+		"CROSS_BORDER": 45, // default value, can be replaced with org specific values
+	}
+	for _, remoteWorkType := range remoteWorkTypes {
+		_, err := tx.Exec(`INSERT INTO remote_work_balances (org_id, employee_id, type, annual_balance, created_at, updated_at)
+		                  VALUES (?, ?, ?, ?, ?, ?)`,
+			employee.OrgID, employee.EmployeeID, remoteWorkType, remoteWorkBalances[remoteWorkType], time.Now(), time.Now())
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	return tx.Commit()
 }
 
 func (r *employeeRepository) Update(employeeID string, employee *model.Employee) error {

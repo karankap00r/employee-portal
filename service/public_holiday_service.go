@@ -3,7 +3,9 @@ package service
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
+	"net/smtp"
 	"time"
 
 	"github.com/karankap00r/employee_portal/common"
@@ -19,6 +21,8 @@ type PublicHolidayService interface {
 	GetAllPublicHolidays() ([]model.PublicHoliday, error)
 	AddPublicHoliday(holiday model.PublicHoliday) error
 	UpdatePublicHolidayStatus(id int, status string) error
+	GetPublicHolidaysForNext7Days(country string) ([]model.PublicHoliday, error)
+	SendPublicHolidayAlert(email, country string) error
 }
 
 type publicHolidayService struct {
@@ -94,4 +98,43 @@ func (s *publicHolidayService) fetchHolidaysByCountry(country string) ([]model.P
 		return nil, err
 	}
 	return holidays, nil
+}
+
+func (s *publicHolidayService) GetPublicHolidaysForNext7Days(country string) ([]model.PublicHoliday, error) {
+	return s.repo.GetPublicHolidaysForNext7Days(country)
+}
+
+func (s *publicHolidayService) SendPublicHolidayAlert(email, country string) error {
+	holidays, err := s.GetPublicHolidaysForNext7Days(country)
+	if err != nil {
+		return err
+	}
+
+	if len(holidays) == 0 {
+		return nil
+	}
+
+	subject := "Upcoming Public Holidays"
+	body := "Here are the upcoming public holidays in the next 7 days:\n\n"
+	for _, holiday := range holidays {
+		body += fmt.Sprint(holiday.Name, " on ", holiday.StartDate, "\n")
+	}
+
+	return sendEmail(email, subject, body)
+}
+
+func sendEmail(to, subject, body string) error {
+	from := "your-email@example.com"
+	password := "your-email-password"
+
+	smtpHost := "smtp.example.com"
+	smtpPort := "587"
+
+	msg := "From: " + from + "\n" +
+		"To: " + to + "\n" +
+		"Subject: " + subject + "\n\n" + body
+
+	auth := smtp.PlainAuth("", from, password, smtpHost)
+
+	return smtp.SendMail(smtpHost+":"+smtpPort, auth, from, []string{to}, []byte(msg))
 }

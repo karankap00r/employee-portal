@@ -87,3 +87,42 @@ func (h *PublicHolidayHandler) UpdatePublicHolidayStatus(w http.ResponseWriter, 
 	}
 	util.WriteSuccessResponse(w, "Public holiday status updated successfully")
 }
+
+func (h *PublicHolidayHandler) GetPublicHolidaysForNext7Days(w http.ResponseWriter, r *http.Request) {
+	country := r.URL.Query().Get("country")
+	if country == "" {
+		util.WriteErrorResponse(w, http.StatusBadRequest, "Country parameter is required")
+		return
+	}
+
+	holidays, err := h.service.GetPublicHolidaysForNext7Days(country)
+	if err != nil {
+		util.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	util.WriteSuccessResponse(w, holidays)
+}
+
+func (h *PublicHolidayHandler) SendPublicHolidayAlert(w http.ResponseWriter, r *http.Request) {
+	var request struct {
+		Email   string `json:"email"`
+		Country string `json:"country"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		util.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if request.Email == "" || request.Country == "" {
+		util.WriteErrorResponse(w, http.StatusBadRequest, "Email and Country are required")
+		return
+	}
+
+	err := h.service.SendPublicHolidayAlert(request.Email, request.Country)
+	if err != nil {
+		util.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	util.WriteSuccessResponse(w, "Public holiday alert sent successfully")
+}
