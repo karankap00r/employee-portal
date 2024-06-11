@@ -13,14 +13,17 @@ import (
 	"github.com/karankap00r/employee_portal/util"
 )
 
+// LeaveHandler is the interface for the leave handler
 type LeaveHandler struct {
 	service service.LeaveService
 }
 
+// NewLeaveHandler creates a new leave handler with the given service
 func NewLeaveHandler(service service.LeaveService) *LeaveHandler {
 	return &LeaveHandler{service: service}
 }
 
+// GetLeaveBalance gets the leave balance for the employee with the given employee ID
 func (h *LeaveHandler) GetLeaveBalance(w http.ResponseWriter, r *http.Request) {
 	var request dto.GetLeaveBalanceRequest
 
@@ -40,6 +43,7 @@ func (h *LeaveHandler) GetLeaveBalance(w http.ResponseWriter, r *http.Request) {
 	util.WriteSuccessResponse(w, response)
 }
 
+// RaiseLeaveRequest raises a leave request with the given details
 func (h *LeaveHandler) RaiseLeaveRequest(w http.ResponseWriter, r *http.Request) {
 	var request dto.RaiseLeaveRequest
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
@@ -73,6 +77,7 @@ func (h *LeaveHandler) RaiseLeaveRequest(w http.ResponseWriter, r *http.Request)
 	util.WriteSuccessResponse(w, "Leave request raised successfully")
 }
 
+// UpdateLeaveRequest updates the leave request with the given details
 func (h *LeaveHandler) UpdateLeaveRequest(w http.ResponseWriter, r *http.Request) {
 	var request dto.UpdateLeaveStatusRequest
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
@@ -86,6 +91,7 @@ func (h *LeaveHandler) UpdateLeaveRequest(w http.ResponseWriter, r *http.Request
 	util.WriteSuccessResponse(w, "Leave request updated successfully")
 }
 
+// GetLeavesInRange gets the leave requests in the given date range
 func (h *LeaveHandler) GetLeavesInRange(w http.ResponseWriter, r *http.Request) {
 	var request dto.GetLeavesInRangeRequest
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {

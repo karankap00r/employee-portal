@@ -22,6 +22,7 @@ func main() {
 	// Start server to initialise REST endpoints
 	go server.Start()
 
+	// Wait for interrupt signal to gracefully shutdown the server.
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, syscall.SIGINT, syscall.SIGTERM)
 	<-interrupt

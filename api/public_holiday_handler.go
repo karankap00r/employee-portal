@@ -12,14 +12,17 @@ import (
 	"github.com/karankap00r/employee_portal/util"
 )
 
+// PublicHolidayHandler is the interface for the public holiday handler
 type PublicHolidayHandler struct {
 	service service.PublicHolidayService
 }
 
+// NewPublicHolidayHandler creates a new public holiday handler with the given service
 func NewPublicHolidayHandler(service service.PublicHolidayService) *PublicHolidayHandler {
 	return &PublicHolidayHandler{service}
 }
 
+// SyncAllCountries syncs public holidays for all countries
 func (h *PublicHolidayHandler) SyncAllCountries(w http.ResponseWriter, r *http.Request) {
 	err := h.service.SyncAllCountries()
 	if err != nil {
@@ -29,6 +32,7 @@ func (h *PublicHolidayHandler) SyncAllCountries(w http.ResponseWriter, r *http.R
 	util.WriteSuccessResponse(w, "Public holidays for all countries synced successfully")
 }
 
+// SyncCountries syncs public holidays for the specified countries
 func (h *PublicHolidayHandler) SyncCountries(w http.ResponseWriter, r *http.Request) {
 	var countries []string
 	if err := json.NewDecoder(r.Body).Decode(&countries); err != nil {
@@ -43,6 +47,7 @@ func (h *PublicHolidayHandler) SyncCountries(w http.ResponseWriter, r *http.Requ
 	util.WriteSuccessResponse(w, "Public holidays for specified countries synced successfully")
 }
 
+// GetAllPublicHolidays gets all public holidays
 func (h *PublicHolidayHandler) GetAllPublicHolidays(w http.ResponseWriter, r *http.Request) {
 	holidays, err := h.service.GetAllPublicHolidays()
 	if err != nil {
@@ -52,6 +57,7 @@ func (h *PublicHolidayHandler) GetAllPublicHolidays(w http.ResponseWriter, r *ht
 	util.WriteSuccessResponse(w, holidays)
 }
 
+// AddPublicHoliday adds a public holiday
 func (h *PublicHolidayHandler) AddPublicHoliday(w http.ResponseWriter, r *http.Request) {
 	var holiday model.PublicHoliday
 	if err := json.NewDecoder(r.Body).Decode(&holiday); err != nil {
@@ -66,6 +72,7 @@ func (h *PublicHolidayHandler) AddPublicHoliday(w http.ResponseWriter, r *http.R
 	util.WriteSuccessResponse(w, "Public holiday added successfully")
 }
 
+// UpdatePublicHoliday updates a public holiday
 func (h *PublicHolidayHandler) UpdatePublicHolidayStatus(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
@@ -88,6 +95,7 @@ func (h *PublicHolidayHandler) UpdatePublicHolidayStatus(w http.ResponseWriter, 
 	util.WriteSuccessResponse(w, "Public holiday status updated successfully")
 }
 
+// GetPublicHolidaysForNext7Days gets public holidays for the next 7 days
 func (h *PublicHolidayHandler) GetPublicHolidaysForNext7Days(w http.ResponseWriter, r *http.Request) {
 	country := r.URL.Query().Get("country")
 	if country == "" {
@@ -103,6 +111,7 @@ func (h *PublicHolidayHandler) GetPublicHolidaysForNext7Days(w http.ResponseWrit
 	util.WriteSuccessResponse(w, holidays)
 }
 
+// SendPublicHolidayAlert sends a public holiday alert to the specified email
 func (h *PublicHolidayHandler) SendPublicHolidayAlert(w http.ResponseWriter, r *http.Request) {
 	var request struct {
 		Email   string `json:"email"`

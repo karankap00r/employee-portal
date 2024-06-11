@@ -86,25 +86,3 @@ Requirements:
 * Service should return the current 7 days public holidays for the employees' residence location
 * Create an email alert with the current public holidays in the next 7 days upcoming
 * Store from a 3rd party API or you parse it online to get the source of truth of the public holidays
-
-### Notes:
-- Tech stack/language up to you
-
-## Clarifying Questions Asked
-
-- The attachment mentions Python. However, is it okay if I implement everything in Java, since I have higher proficiency in that as of today? Additionally, as mentioned in the attachment, I ll try to use vanilla Object Oriented Principles along with best practices and design patterns for my implementation. Let me know if this sounds good to you.
-    - _You can do any tech stack_
-- Is a REST API needed as a part of the assignment or should we be okay to access the functionalities via Unit Tests, given we are using an in-memory database?
-    - _up to you_
-- The email prompt says - "Create a service that will provide the public holidays from the emp...." Does it mean that the service needs to be deployed in the public cloud as well or just sharing a zipped application should be fine in which the unit tests execute to validate all possible scenarios?
-    - _up to you_
-- For this prompt - "Service should return the current 7 days public holidays for the employees residence location". By the current 7, do you mean the next 7 public holidays? Also, do we return just the next 7 dates or the names of the public holidays as well like <25 December, Christmas>?
-    - _in the next 7 days, names of the public holidays_
-- In case multiple holidays occur on the same day, can we show any one of them, since it eventually just means a holiday for the employee or should we show all of the holidays to the user for their location on that day?
-    - _yes_
-- For prompt 2 for the email alerts: In case of the multiple holidays in next 7 days, thinking that we can keep the frequency of email alerts once a week (probably each Sunday). Let me know if that sounds good.
-    - _yes makes sense_
-- "Store from a 3rd party api or you parse it online to get the source of truth of the public holidays" - I am thinking of this as a one time activity that can be done each year along with periodic reviews once a month. Would this be okay?
-    - _ok_
-- Additionally, I am planning to keep both the services as a monolith which means all of the code would be in a single repository, but in separate Employee and Holiday specific modules. Planning to do this to ease out the tests execution. Let me know if this should be okay.
-    - _ok_

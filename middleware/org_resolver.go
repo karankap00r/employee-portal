@@ -15,6 +15,7 @@ const (
 	ClientIDHeader     = "X-Client-ID"
 )
 
+// OrgResolver is a middleware to resolve the org ID from the client ID
 func OrgResolver(repo repository.OrgRepository) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -36,6 +37,7 @@ func OrgResolver(repo repository.OrgRepository) func(http.Handler) http.Handler 
 	}
 }
 
+// GetOrgIDFromContext returns the org ID from the context
 func GetOrgIDFromContext(ctx context.Context) (int, bool) {
 	orgID, ok := ctx.Value(OrgIDKey).(int)
 	return orgID, ok

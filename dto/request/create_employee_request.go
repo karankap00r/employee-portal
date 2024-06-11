@@ -5,6 +5,7 @@ import (
 	"unicode/utf8"
 )
 
+// CreateEmployeeRequest represents the request to create an employee
 type CreateEmployeeRequest struct {
 	Name     string `json:"name"`
 	Position string `json:"position"`
@@ -12,6 +13,7 @@ type CreateEmployeeRequest struct {
 	Salary   int    `json:"salary"`
 }
 
+// Validate validates the CreateEmployeeRequest
 func (req CreateEmployeeRequest) Validate() error {
 	if req.Name == "" {
 		return errors.New("name cannot be empty")

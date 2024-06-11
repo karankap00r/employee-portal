@@ -15,22 +15,35 @@ import (
 
 const remoteTimezone = "America/New_York" // Specify the remote server timezone
 
+// EmployeeService is an interface for the employee service
+//
 //go:generate mockgen -source=service/employee_service.go -destination=mocks/mock_employee_service.go -package=mocks
 type EmployeeService interface {
+
+	// GetAllEmployees returns all employees
 	GetAllEmployees(context.Context) ([]model.Employee, error)
+
+	// GetEmployeeByEmployeeID returns an employee by employee ID
 	GetEmployeeByEmployeeID(ctx context.Context, employeeID string) (*model.Employee, error)
+
+	// CreateEmployee creates an employee
 	CreateEmployee(context context.Context, request request.CreateEmployeeRequest) (*model.Employee, error)
+
+	// UpdateEmployeeByEmployeeID updates an employee by employee ID
 	UpdateEmployeeByEmployeeID(ctx context.Context, employeeID string, request request.UpdateEmployeeByEmployeeIDRequest) (*model.Employee, error)
 }
 
+// employeeService is a struct for the employee service
 type employeeService struct {
 	repo repository.EmployeeRepository
 }
 
+// NewEmployeeService returns a new employee service
 func NewEmployeeService(repo repository.EmployeeRepository) EmployeeService {
 	return &employeeService{repo}
 }
 
+// GetAllEmployees returns all employees
 func (s *employeeService) GetAllEmployees(ctx context.Context) ([]model.Employee, error) {
 	orgID, ok := middleware.GetOrgIDFromContext(ctx)
 	if !ok {
@@ -50,6 +63,7 @@ func (s *employeeService) GetAllEmployees(ctx context.Context) ([]model.Employee
 	return employees, nil
 }
 
+// GetEmployeeByEmployeeID returns an employee by employee ID
 func (s *employeeService) GetEmployeeByEmployeeID(ctx context.Context, employeeID string) (*model.Employee, error) {
 	orgID, ok := middleware.GetOrgIDFromContext(ctx)
 	if !ok {
@@ -69,6 +83,7 @@ func (s *employeeService) GetEmployeeByEmployeeID(ctx context.Context, employeeI
 	return employee, nil
 }
 
+// CreateEmployee creates an employee
 func (s *employeeService) CreateEmployee(ctx context.Context, request request.CreateEmployeeRequest) (*model.Employee, error) {
 	currentTime, err := util.GetCurrentTimeInTimezone(remoteTimezone)
 	if err != nil {
@@ -94,6 +109,7 @@ func (s *employeeService) CreateEmployee(ctx context.Context, request request.Cr
 	return employee, err
 }
 
+// UpdateEmployeeByEmployeeID updates an employee by employee ID
 func (s *employeeService) UpdateEmployeeByEmployeeID(ctx context.Context, employeeID string, request request.UpdateEmployeeByEmployeeIDRequest) (*model.Employee, error) {
 	currentTime, err := util.GetCurrentTimeInTimezone(remoteTimezone)
 	if err != nil {
@@ -124,11 +140,13 @@ func (s *employeeService) UpdateEmployeeByEmployeeID(ctx context.Context, employ
 
 /* Helper Functions */
 
+// generateRandomEmployeeID generates a random employee ID
 func generateRandomEmployeeID() string {
 	rand.Seed(time.Now().UnixNano())
 	return fmt.Sprintf("%06d", rand.Intn(1000000))
 }
 
+// transformEmployeeToLocalTimezone transforms the employee timestamps to the local timezone
 func (s *employeeService) transformEmployeeToLocalTimezone(employee *model.Employee) error {
 	localTimezone, err := util.GetLocalTimezone()
 	if err != nil {

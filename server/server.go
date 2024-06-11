@@ -24,6 +24,7 @@ import (
 // @host localhost:8000
 // @BasePath /
 
+// Start initialises the route handlers for all the APIs and starts the server
 func Start() {
 	dbConnection := database.GetDB()
 

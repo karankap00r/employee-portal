@@ -10,14 +10,17 @@ import (
 	"time"
 )
 
+// RemoteWorkHandler is the interface for the remote work handler
 type RemoteWorkHandler struct {
 	service service.RemoteWorkService
 }
 
+// NewRemoteWorkHandler creates a new remote work handler with the given service
 func NewRemoteWorkHandler(service service.RemoteWorkService) *RemoteWorkHandler {
 	return &RemoteWorkHandler{service: service}
 }
 
+// GetRemoteWorkBalance gets the remote work balance for the employee with the given employee ID
 func (h *RemoteWorkHandler) GetRemoteWorkBalance(w http.ResponseWriter, r *http.Request) {
 	var request dto.GetRemoteWorkBalanceRequest
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
@@ -37,6 +40,7 @@ func (h *RemoteWorkHandler) GetRemoteWorkBalance(w http.ResponseWriter, r *http.
 	util.WriteSuccessResponse(w, response)
 }
 
+// RaiseRemoteWorkRequest raises a remote work request with the given details
 func (h *RemoteWorkHandler) RaiseRemoteWorkRequest(w http.ResponseWriter, r *http.Request) {
 	var request dto.RaiseRemoteWorkRequest
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
@@ -70,6 +74,7 @@ func (h *RemoteWorkHandler) RaiseRemoteWorkRequest(w http.ResponseWriter, r *htt
 	util.WriteSuccessResponse(w, "Remote work request raised successfully")
 }
 
+// UpdateRemoteWorkRequest updates the remote work request with the given details
 func (h *RemoteWorkHandler) UpdateRemoteWorkRequest(w http.ResponseWriter, r *http.Request) {
 	var request dto.UpdateRemoteWorkRequest
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
@@ -83,6 +88,7 @@ func (h *RemoteWorkHandler) UpdateRemoteWorkRequest(w http.ResponseWriter, r *ht
 	util.WriteSuccessResponse(w, "Remote work request updated successfully")
 }
 
+// GetRemoteWorkRequestsInRange gets the remote work requests in the given date range
 func (h *RemoteWorkHandler) GetRemoteWorkRequestsInRange(w http.ResponseWriter, r *http.Request) {
 	var request dto.GetRemoteWorkRequestsInRangeRequest
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {

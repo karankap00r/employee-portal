@@ -5,6 +5,7 @@ import (
 	"unicode/utf8"
 )
 
+// UpdateEmployeeByEmployeeIDRequest represents the request to update an employee by employee_id
 type UpdateEmployeeByEmployeeIDRequest struct {
 	EmployeeID string `json:"employee_id"`
 	Name       string `json:"name"`
@@ -13,6 +14,7 @@ type UpdateEmployeeByEmployeeIDRequest struct {
 	Salary     int    `json:"salary"`
 }
 
+// Validate validates the UpdateEmployeeByEmployeeIDRequest
 func (req UpdateEmployeeByEmployeeIDRequest) Validate() error {
 	if req.EmployeeID == "" {
 		return errors.New("employee_id cannot be empty")

@@ -32,7 +32,7 @@ func InitDB() {
 	migrateDB()
 }
 
-// migrateDB runs Flyway migrations
+// migrateDB runs golang-migrate migrations
 func migrateDB() {
 	driver, err := sqlite3.WithInstance(databaseConnection, &sqlite3.Config{})
 	if err != nil {
