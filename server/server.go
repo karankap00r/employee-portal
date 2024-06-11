@@ -3,6 +3,9 @@ package server
 import (
 	"github.com/gorilla/mux"
 	"github.com/karankap00r/employee_portal/api"
+	"github.com/karankap00r/employee_portal/database"
+	service "github.com/karankap00r/employee_portal/service/employee"
+	"github.com/karankap00r/employee_portal/storage/repository"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"log"
 	"net/http"
@@ -23,10 +26,15 @@ import (
 func Start() {
 	r := mux.NewRouter()
 
-	r.HandleFunc("/employees", api.GetEmployees).Methods(http.MethodGet)
-	r.HandleFunc("/employees/{id}", api.GetEmployee).Methods(http.MethodGet)
-	r.HandleFunc("/employees", api.CreateEmployee).Methods(http.MethodPost)
-	r.HandleFunc("/employees/{id}", api.UpdateEmployee).Methods(http.MethodPut)
+	// Initialize repository, service, and handlers
+	employeeRepo := repository.NewEmployeeRepository(database.GetDB())
+	employeeService := service.NewEmployeeService(employeeRepo)
+	employeeHandler := api.NewEmployeeHandler(employeeService)
+
+	r.HandleFunc("/employees", employeeHandler.CreateEmployee).Methods(http.MethodPost)
+	r.HandleFunc("/employees/{id}", employeeHandler.UpdateEmployee).Methods(http.MethodPut)
+	r.HandleFunc("/employees/{id}", employeeHandler.GetEmployee).Methods(http.MethodGet)
+	r.HandleFunc("/employees", employeeHandler.GetEmployees).Methods(http.MethodGet)
 
 	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 

@@ -108,5 +108,3 @@ Requirements:
     - _ok_
 - Additionally, I am planning to keep both the services as a monolith which means all of the code would be in a single repository, but in separate Employee and Holiday specific modules. Planning to do this to ease out the tests execution. Let me know if this should be okay.
     - _ok_
-- Since the assignment was shared today, I am aiming to complete it by Tuesday 3:00 PM SGT ie 2 days from now. Would that be okay, David?
-    - _Noted_
