@@ -6,6 +6,7 @@ type PublicHoliday struct {
 	StartDate   string `json:"start_date"`
 	EndDate     string `json:"end_date"`
 	Name        string `json:"name"`
+	Status      string `json:"status"`
 	IsMandatory bool   `json:"is_mandatory"`
 	CreatedBy   string `json:"created_by"`
 	CreatedAt   string `json:"created_at"`
