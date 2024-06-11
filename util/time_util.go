@@ -27,3 +27,8 @@ func GetLocalTimezone() (string, error) {
 	localLocation := time.Now().Location()
 	return localLocation.String(), nil
 }
+
+// ExtractDate takes a time.Time object and returns a new time.Time object with only the date part
+func ExtractDate(t time.Time) time.Time {
+	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
+}

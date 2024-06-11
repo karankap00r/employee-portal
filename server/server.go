@@ -32,16 +32,20 @@ func Start() {
 	leaveRepo := repository.NewLeaveRepository(dbConnection)
 	employeeRepo := repository.NewEmployeeRepository(dbConnection)
 	remoteWorkRepo := repository.NewRemoteWorkRepository(dbConnection)
+	publicHolidayRepo := repository.NewPublicHolidayRepository(dbConnection)
 
 	// Initialize services
+	apiKey := "your_abstract_api_key"
 	leaveService := service.NewLeaveService(leaveRepo)
 	employeeService := service.NewEmployeeService(employeeRepo)
 	remoteWorkService := service.NewRemoteWorkService(remoteWorkRepo)
+	publicHolidayService := service.NewPublicHolidayService(publicHolidayRepo, apiKey)
 
 	// Initialize handlers
 	leaveHandler := api.NewLeaveHandler(leaveService)
 	employeeHandler := api.NewEmployeeHandler(employeeService)
 	remoteWorkHandler := api.NewRemoteWorkHandler(remoteWorkService)
+	publicHolidayHandler := api.NewPublicHolidayHandler(publicHolidayService)
 
 	r := mux.NewRouter()
 
@@ -61,6 +65,12 @@ func Start() {
 	r.HandleFunc("/remote-work-request", remoteWorkHandler.RaiseRemoteWorkRequest).Methods(http.MethodPost)
 	r.HandleFunc("/remote-work/{action}", remoteWorkHandler.UpdateRemoteWorkRequest).Methods(http.MethodPut)
 	r.HandleFunc("/remote-work-requests", remoteWorkHandler.GetRemoteWorkRequestsInRange).Methods(http.MethodGet)
+
+	r.HandleFunc("/public-holidays/sync-all", publicHolidayHandler.SyncAllCountries).Methods(http.MethodPost)
+	r.HandleFunc("/public-holidays/sync", publicHolidayHandler.SyncCountries).Methods(http.MethodPost)
+	r.HandleFunc("/public-holidays", publicHolidayHandler.GetAllPublicHolidays).Methods(http.MethodGet)
+	r.HandleFunc("/public-holiday", publicHolidayHandler.AddPublicHoliday).Methods(http.MethodPost)
+	r.HandleFunc("/public-holiday/{id}/status", publicHolidayHandler.UpdatePublicHolidayStatus).Methods(http.MethodPut)
 
 	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 
