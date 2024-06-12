@@ -1,6 +1,6 @@
 # Workday like Employee Portal
 
-## Problem 1: Employee Database Management System
+## Requirement 1: Employee Database Management System
 
 Develop a simple Employee Database Management System using Object-Oriented
 Programming
@@ -47,7 +47,7 @@ Class EmployeeDatabase
 1. Results should be dumped into the console.
 2. For the database you can use an embedded one such as H2 or SQLite.
 
-## Problem 2: Time-off module
+## Requirement 2: Time-off module
 
 In our Time Off module we have Time Off Categories that you can use to
 request the right time for those categories as a team member.<br>
@@ -78,7 +78,7 @@ the same dates.
         - Name
 ```
 
-## Problem 3: Public Holiday Service
+## Requirement 3: Public Holiday Service
 
 **Goal**: Create a service that will provide the public holidays from the employees that you have from exercise 1 (create fake employees).
 
