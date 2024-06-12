@@ -35,7 +35,7 @@ func (r *remoteWorkRepository) GetRemoteWorkBalance(orgID int, employeeID string
 }
 
 func (r *remoteWorkRepository) CreateRemoteWorkRequest(request model.RemoteWorkRequest) error {
-	query := `INSERT INTO remote_work_requests (org_id, employee_id, type, start_date, end_date, reason, status, approved_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+	query := `INSERT INTO remote_work_requests (org_id, employee_id, type, start_date, end_date, reason, status, updated_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 	_, err := r.db.Exec(query, request.OrgID, request.EmployeeID, request.Type, request.StartDate, request.EndDate, request.Reason, request.Status, request.UpdatedBy, request.CreatedAt, request.UpdatedAt)
 	return err
 }
@@ -45,18 +45,21 @@ func (r *remoteWorkRepository) UpdateRemoteWorkRequestStatus(orgID, requestID in
 	getRemoteWorkTypeQuery := `SELECT employee_id, type FROM remote_work_requests WHERE id = ? and org_id = ?`
 	updateRemoteWorkBalanceQuery := `UPDATE remote_work_balances SET annual_balance = annual_balance - 1 WHERE org_id = ? and employee_id = ? and type = ?`
 
-	_, err := r.db.Begin()
+	var err error
+	tx, err := r.db.Begin()
+	defer func(err error) {
+		if err != nil {
+			if tx != nil {
+				tx.Rollback()
+			}
+			log.Println(err)
+		}
+		tx.Commit()
+	}(err)
+
 	if err != nil {
 		return err
 	}
-
-	defer func(db *sql.DB) {
-		err := db.Close()
-		if err != nil {
-			log.Println("Error closing db connection", err)
-			return
-		}
-	}(r.db)
 
 	_, err = r.db.Exec(updateRemoteWorkBalanceQuery, status, updatedBy, time.Now(), requestID, orgID)
 	if status == common.Approved.String() {
@@ -76,7 +79,7 @@ func (r *remoteWorkRepository) UpdateRemoteWorkRequestStatus(orgID, requestID in
 }
 
 func (r *remoteWorkRepository) GetRemoteWorkRequestsInRange(orgID int, startDate, endDate time.Time) ([]model.RemoteWorkRequest, error) {
-	query := `SELECT id, org_id, employee_id, type, start_date, end_date, reason, status, approved_by, created_at, updated_at FROM remote_work_requests WHERE org_id = ? AND start_date >= ? AND end_date <= ?`
+	query := `SELECT id, org_id, employee_id, type, start_date, end_date, reason, status, updated_by, created_at, updated_at FROM remote_work_requests WHERE org_id = ? AND start_date >= ? AND end_date <= ?`
 	rows, err := r.db.Query(query, orgID, startDate, endDate)
 	if err != nil {
 		return nil, err

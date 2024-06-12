@@ -94,16 +94,17 @@ func (h *LeaveHandler) UpdateLeaveRequest(w http.ResponseWriter, r *http.Request
 // GetLeavesInRange gets the leave requests in the given date range
 func (h *LeaveHandler) GetLeavesInRange(w http.ResponseWriter, r *http.Request) {
 	var request dto.GetLeavesInRangeRequest
+
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		util.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	startDate, err := time.Parse(time.RFC3339, request.StartDate)
+	startDate, err := time.Parse(time.DateOnly, request.StartDate)
 	if err != nil {
 		util.WriteErrorResponse(w, http.StatusBadRequest, "Invalid start date format")
 		return
 	}
-	endDate, err := time.Parse(time.RFC3339, request.EndDate)
+	endDate, err := time.Parse(time.DateOnly, request.EndDate)
 	if err != nil {
 		util.WriteErrorResponse(w, http.StatusBadRequest, "Invalid end date format")
 		return

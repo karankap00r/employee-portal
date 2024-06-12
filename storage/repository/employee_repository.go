@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"log"
 	"time"
 
 	"github.com/karankap00r/employee_portal/storage/model"
@@ -55,16 +56,22 @@ func (r *employeeRepository) GetByEmployeeID(orgID int, employeeID string) (*mod
 }
 
 func (r *employeeRepository) Create(employee *model.Employee) error {
+	var err error
 	tx, err := r.db.Begin()
-	if err != nil {
-		return err
-	}
+	defer func(err error) {
+		if err != nil {
+			if tx != nil {
+				tx.Rollback()
+			}
+			log.Println(err)
+		}
+		tx.Commit()
+	}(err)
 
 	query := `INSERT INTO employees (org_id, employee_id, name, position, email, salary, created_at, updated_at)
 	          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
 	_, err = tx.Exec(query, employee.OrgID, employee.EmployeeID, employee.Name, employee.Position, employee.Email, employee.Salary, time.Now(), time.Now())
 	if err != nil {
-		tx.Rollback()
 		return err
 	}
 
@@ -79,7 +86,6 @@ func (r *employeeRepository) Create(employee *model.Employee) error {
 		                  VALUES (?, ?, ?, ?, ?, ?)`,
 			employee.OrgID, employee.EmployeeID, leaveType, leaveBalances[leaveType], time.Now(), time.Now())
 		if err != nil {
-			tx.Rollback()
 			return err
 		}
 	}
@@ -95,12 +101,11 @@ func (r *employeeRepository) Create(employee *model.Employee) error {
 		                  VALUES (?, ?, ?, ?, ?, ?)`,
 			employee.OrgID, employee.EmployeeID, remoteWorkType, remoteWorkBalances[remoteWorkType], time.Now(), time.Now())
 		if err != nil {
-			tx.Rollback()
 			return err
 		}
 	}
 
-	return tx.Commit()
+	return nil
 }
 
 func (r *employeeRepository) Update(employeeID string, employee *model.Employee) error {
